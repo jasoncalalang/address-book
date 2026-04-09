@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: address-book
+  labels:
+    app: address-book
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: address-book
+  template:
+    metadata:
+      labels:
+        app: address-book
+    spec:
+      containers:
+        - name: address-book
+          # Placeholder image — `kubectl set image` in the pipeline replaces
+          # this with the tag produced by the current build.
+          image: localhost:5000/address-book:placeholder
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
